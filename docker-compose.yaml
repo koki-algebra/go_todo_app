@@ -8,7 +8,10 @@ services:
       target: dev
     tty: true
     stdin_open: true
+    environment:
+      TODO_ENV: dev
+      PORT: 8080
     volumes:
       - ./:/go/src/app
     ports:
-      - "18000:80"
+      - "18000:8080"
