@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"errors"
 
 	"github.com/koki-algebra/go_todo_app/entitiy"
@@ -31,4 +32,33 @@ func (ts *TaskStore) All() entitiy.Tasks {
 		tasks[i-1] = t
 	}
 	return tasks
+}
+
+func (r *Respository) ListTasks(ctx context.Context, db Queryer) (entitiy.Tasks, error) {
+	tasks := entitiy.Tasks{}
+	sql := `SELECT id, title, status, created, modified FROM task;`
+	if err := db.SelectContext(ctx, &tasks, sql); err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func (r *Respository) AddTask(ctx context.Context, db Execer, t *entitiy.Task) error {
+	t.Created = r.Clocker.Now()
+	t.Modified = r.Clocker.Now()
+	sql := `INSERT INTO task (title, status, created, modified) VALUES (?, ?, ?, ?)`
+	result, err := db.ExecContext(
+		ctx, sql, t.Title, t.Status, t.Created, t.Modified,
+	)
+	if err != nil {
+		return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	t.ID = entitiy.TaskID(id)
+
+	return nil
 }
