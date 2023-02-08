@@ -21,7 +21,7 @@ test: ## Execute tests
 	cd src && go test -race -shuffle=on ./...
 
 migrate: ## Execute migration
-	mysqldef -u todo -p todo todo < ./_tools/mysql/schema.sql
+	mysqldef --user=todo --password=todo --port=33306 --host=localhost todo < ./_tools/mysql/schema.sql
 
 help: ## Show options
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
